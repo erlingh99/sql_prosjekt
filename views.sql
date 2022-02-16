@@ -71,5 +71,5 @@ CREATE VIEW WaitinglistSorted AS (
 );
 
 CREATE VIEW CourseQueuePositions AS (
-    SELECT course, student, ROW_NUMBER() OVER(PARTITION BY course ORDER BY position) AS place FROM WaitingListSorted
+    SELECT course, student, ROW_NUMBER() OVER(PARTITION BY course) AS place FROM WaitingListSorted
 );
