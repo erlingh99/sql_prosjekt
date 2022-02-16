@@ -69,3 +69,7 @@ CREATE VIEW PathToGraduation AS (
 CREATE VIEW WaitinglistSorted AS (
     SELECT * FROM WaitingList ORDER BY course ASC, position ASC
 );
+
+CREATE VIEW CourseQueuePositions AS (
+    SELECT course, student, ROW_NUMBER() OVER(PARTITION BY course ORDER BY position) AS place FROM WaitingList;
+);
