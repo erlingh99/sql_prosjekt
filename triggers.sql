@@ -5,6 +5,7 @@ CREATE OR REPLACE FUNCTION registerStudent() RETURNS TRIGGER AS $registerStudent
         fullCourse      BOOLEAN;
         cap             Integer;
         reg             Integer;
+        --pos             Integer;
         
 BEGIN     
     -- Check if student is already registered in course
@@ -28,9 +29,9 @@ BEGIN
     IF missing IS NOT NULL THEN
         RAISE EXCEPTION 'All required courses are not passed. Missing courses: %', missing;
     END IF;
-    
-    fullCourse := False;
+        
     -- Check if the course is full
+    fullCourse := False;
     IF EXISTS (SELECT 1 FROM LimitedCourses WHERE code = NEW.course) THEN
         cap := (SELECT capacity FROM LimitedCourses WHERE code = NEW.course);
         reg := (SELECT count(*) FROM Registrations WHERE (Registrations.course = NEW.course AND status = 'registered'));
@@ -41,8 +42,8 @@ BEGIN
     END IF;
     
     IF fullCourse THEN   
-        WITH pos AS (SELECT count(position)+1 FROM WaitingList WHERE course = NEW.course)
-        INSERT INTO WaitingList VALUES (NEW.student, NEW.course, pos);
+        --pos := (SELECT count(position)+1 FROM WaitingList WHERE course = NEW.course);
+        INSERT INTO WaitingList VALUES (NEW.student, NEW.course);
         RAISE NOTICE 'Put on waitinglist for course %.', NEW.course;
     ELSE
         INSERT INTO Registered VALUES (NEW.student, NEW.course);
@@ -53,16 +54,17 @@ BEGIN
 END;
 $registerStudent$ LANGUAGE plpgsql;
 
-CREATE FUNCTION unregisterStudent() RETURNS TRIGGER AS $unregisterStudent$
+CREATE OR REPLACE FUNCTION unregisterStudent() RETURNS TRIGGER AS $unregisterStudent$
     DECLARE
         studentExists   BOOLEAN;
         courseExists    BOOLEAN;
         isWaiting       BOOLEAN;
         isLimited       BOOLEAN;
         isRegistered    BOOLEAN;
+        isWaitingEmpty  BOOLEAN;
         newStudent      CHAR(10);
 BEGIN
-    studentExists := EXISTS (SELECT 1 FROM Students WHERE OLD.student = studentIdnr);
+    studentExists := EXISTS (SELECT 1 FROM Students WHERE OLD.student = idnr);
     courseExists := EXISTS (SELECT 1 FROM Courses WHERE OLD.course = code);
 
     IF NOT courseExists AND NOT studentExists THEN
@@ -79,24 +81,25 @@ BEGIN
 
     -- Check if the student is on the waiting list.
     isWaiting := EXISTS (SELECT 1 FROM Registrations WHERE Registrations.student = OLD.student AND status = 'waiting');
-    
     -- Check if the course is limited.
     isLimited := EXISTS (SELECT 1 FROM LimitedCourses WHERE LimitedCourses.code = OLD.course);
-    
     -- Check if the student is registered in the course.
     isRegistered := EXISTS (SELECT 1 FROM Registrations WHERE Registrations.student = OLD.student AND status = 'registered');
     
     IF isWaiting THEN
         DELETE FROM WaitingList WHERE (WaitingList.student = OLD.student AND WaitingList.Course = OLD.course);
-    END IF;
-
-    IF isRegistered THEN
+        RAISE NOTICE 'Student % removed from waiting list for course %.', OLD.student, OLD.course;
+    ELSIF isRegistered THEN
         DELETE FROM Registered WHERE (Registered.student = OLD.student AND Registered.Course = OLD.course);
+        RAISE NOTICE 'Student % removed from course %.', OLD.student, OLD.course;        
     END IF;    
 
+    -- Check if limited course has empty waiting list
+    isWaitingEmpty := (SELECT student FROM CourseQueuePositions WHERE place = 1 AND CourseQueuePositions.course = OLD.course) IS NULL;
+
     -- If unregistering from a limited course, add the next person on the waiting list to the course.
-    IF isRegistered AND isLimited THEN
-        newStudent := (SELECT student FROM CourseQueuePositions WHERE place = 1 AND CourseQueuePositions.course = course);
+    IF isRegistered AND isLimited AND NOT isWaitingEmpty THEN
+        newStudent := (SELECT student FROM CourseQueuePositions WHERE place = 1 AND CourseQueuePositions.course = OLD.course);
         INSERT INTO Registered VALUES(newStudent, OLD.course);
         DELETE FROM WaitingList WHERE (WaitingList.student = newStudent AND WaitingList.Course = OLD.course);
     END IF;
