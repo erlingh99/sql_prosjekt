@@ -44,17 +44,7 @@ CREATE TABLE Prerequisites(
 
     CHECK (course != required),
     PRIMARY KEY (course, required)
-);
-
--- -- From BCNF. Decomposed into courses, limitedcourses and classified
--- CREATE TABLE R2(
---     courseCode      CHAR(6) PRIMARY KEY REFERENCES Courses,
---     courseName      TEXT NOT NULL,
---     credits         FLOAT NOT NULL CHECK (credits >= 0),
---     departmentName  TEXT REFERENCES Departments,
---     capacity        INT CHECK (capacity > 0),
---     classification  TEXT REFERENCES Classifications
--- );  
+); 
 
 CREATE TABLE LimitedCourses(
     code        CHAR(6) PRIMARY KEY REFERENCES Courses,
