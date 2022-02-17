@@ -1,13 +1,23 @@
 -- Triggers
-CREATE OR REPLACE FUNCTION registerStudent() RETURNS TRIGGER AS $registerStudent$
-    DECLARE
-        missing         TEXT;
-        fullCourse      BOOLEAN;
-        cap             Integer;
-        reg             Integer;
-        --pos             Integer;
-        
-BEGIN     
+CREATE FUNCTION registerStudent() 
+    RETURNS TRIGGER 
+AS $$
+DECLARE
+    missing         TEXT;
+    fullCourse      BOOLEAN;
+    cap             Integer;
+    reg             Integer;
+BEGIN
+    -- Check if student exists
+    IF NOT EXISTS (SELECT 1 FROM Students WHERE NEW.student = idnr) THEN
+        RAISE EXCEPTION 'Student % does not exist.', NEW.student;
+    END IF;
+
+    -- Check if course exists
+    IF NOT EXISTS (SELECT 1 FROM Courses WHERE NEW.course = code) THEN
+        RAISE EXCEPTION 'Course % does not exist.', NEW.course;
+    END IF;
+
     -- Check if student is already registered in course
     IF EXISTS (SELECT 1 FROM Registered WHERE Registered.student=NEW.student AND Registered.course=NEW.course) THEN
         RAISE EXCEPTION 'Student % is already registered in course %.', NEW.student, NEW.course;
@@ -19,16 +29,27 @@ BEGIN
     END IF; 
 
     -- Check if the student has completed the prerequired courses
+    CREATE TEMP TABLE missingCourses(
+        missCourses  TEXT
+    );
+
     WITH
         requiredCourses AS
             (SELECT required FROM Prerequisites WHERE Prerequisites.course = NEW.course),
         passed AS
-            (SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student)        
-    SELECT required INTO missing FROM requiredCourses WHERE NOT EXISTS (SELECT FROM passed WHERE course = required);
-    
-    IF missing IS NOT NULL THEN
-        RAISE EXCEPTION 'All required courses are not passed. Missing courses: %', missing;
+            (SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student)     
+    INSERT INTO MissingCourses SELECT required FROM requiredCourses WHERE NOT EXISTS (SELECT FROM passed WHERE course = required) ;
+        
+    IF EXISTS (SELECT 1 FROM missingCourses) THEN        
+        -- SELECT * FROM MissingCourses;
+        FOR missing IN SELECT * FROM MissingCourses LOOP
+            RAISE NOTICE 'Missing required course: %', missing.missCourses;
+        END LOOP;        
+        DROP TABLE MissingCourses;
+        RAISE EXCEPTION 'All required courses are not passed.'; --this only shows one missing course
     END IF;
+    
+    DROP TABLE MissingCourses;
         
     -- Check if the course is full
     fullCourse := False;
@@ -42,7 +63,6 @@ BEGIN
     END IF;
     
     IF fullCourse THEN   
-        --pos := (SELECT count(position)+1 FROM WaitingList WHERE course = NEW.course);
         INSERT INTO WaitingList VALUES (NEW.student, NEW.course);
         RAISE NOTICE 'Put on waitinglist for course %.', NEW.course;
     ELSE
@@ -51,26 +71,26 @@ BEGIN
     END IF;
 
     RETURN NEW;
-END;
-$registerStudent$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION unregisterStudent() RETURNS TRIGGER AS $unregisterStudent$
-    DECLARE
-        studentExists   BOOLEAN;
-        courseExists    BOOLEAN;
-        isWaiting       BOOLEAN;
-        isLimited       BOOLEAN;
-        isRegistered    BOOLEAN;
-        isWaitingEmpty  BOOLEAN;
-        newStudent      CHAR(10);
+END; 
+$$ LANGUAGE plpgsql; 
+
+CREATE FUNCTION unregisterStudent() 
+RETURNS TRIGGER 
+AS $$
+DECLARE
+    studentExists   BOOLEAN;
+    courseExists    BOOLEAN;
+    isWaiting       BOOLEAN;
+    isLimited       BOOLEAN;
+    isRegistered    BOOLEAN;
+    isWaitingEmpty  BOOLEAN;
+    newStudent      CHAR(10);
 BEGIN
     studentExists := EXISTS (SELECT 1 FROM Students WHERE OLD.student = idnr);
     courseExists := EXISTS (SELECT 1 FROM Courses WHERE OLD.course = code);
     
-    IF NOT courseExists AND NOT studentExists THEN
-        RAISE EXCEPTION 'Student % and course % does not exist.', OLD.student, OLD.course;
-    END IF;
-
+    --RAISE NOTICE '----------------------------------------% % %', OLD.student, OLD.course, NOT EXISTS (SELECT 1 FROM Students WHERE OLD.student = idnr);
     IF NOT studentExists THEN
         RAISE EXCEPTION 'Student % does not exist.', OLD.student;
     END IF;
@@ -105,12 +125,16 @@ BEGIN
         RAISE NOTICE 'Student % added to course % from waiting list.', newStudent, OLD.course;  
     END IF;
 
-    RETURN NULL;
-END;
-$unregisterStudent$ LANGUAGE plpgsql;
+    RETURN OLD;
+END; 
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER unregisterStudent INSTEAD OF DELETE ON Registrations 
-            FOR EACH ROW EXECUTE FUNCTION unregisterStudent();
+
 
 CREATE TRIGGER registerStudent INSTEAD OF INSERT ON Registrations 
-            FOR EACH ROW EXECUTE FUNCTION registerStudent();
+    FOR EACH ROW EXECUTE FUNCTION registerStudent();
+
+CREATE TRIGGER unregisterStudent INSTEAD OF DELETE 
+    ON Registrations
+    FOR EACH ROW 
+    EXECUTE FUNCTION unregisterStudent();
