@@ -41,7 +41,8 @@ BEGIN
     END IF;
     
     IF fullCourse THEN   
-        INSERT INTO WaitingList VALUES (NEW.student, NEW.course);
+        WITH pos AS (SELECT count(position)+1 FROM WaitingList WHERE course = NEW.course)
+        INSERT INTO WaitingList VALUES (NEW.student, NEW.course, pos);
         RAISE NOTICE 'Put on waitinglist for course %.', NEW.course;
     ELSE
         INSERT INTO Registered VALUES (NEW.student, NEW.course);

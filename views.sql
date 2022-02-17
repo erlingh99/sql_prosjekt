@@ -66,10 +66,6 @@ CREATE VIEW PathToGraduation AS (
     FROM student NATURAL LEFT JOIN totalCredits NATURAL LEFT JOIN mandatoryLeft NATURAL LEFT JOIN mathCredits NATURAL LEFT JOIN researchCredits NATURAL LEFT JOIN seminarCourses NATURAL LEFT JOIN recommendedCredits
 );
 
-CREATE VIEW WaitinglistSorted AS (
-    SELECT * FROM WaitingList ORDER BY course ASC, position ASC
-);
-
 CREATE VIEW CourseQueuePositions AS (
-    SELECT course, student, ROW_NUMBER() OVER(PARTITION BY course) AS place FROM WaitingListSorted
+    SELECT course, student, position AS place FROM WaitingList ORDER BY course ASC, position ASC
 );

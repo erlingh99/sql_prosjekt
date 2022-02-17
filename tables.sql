@@ -114,8 +114,8 @@ CREATE TABLE Registered(
 CREATE TABLE WaitingList(
     student     CHAR(10) REFERENCES Students,
     course      CHAR(6) REFERENCES LimitedCourses,
-    --position    TIMESTAMP NOT NULL DEFAULT NOW(),
-    position    SERIAL UNIQUE, --SERIAL is guaranteed not null and concurrency safe
+    position    INTEGER NOT NULL CHECK (position > 0),
 
+    UNIQUE (position, courseCode),
     PRIMARY KEY (student, course)
 );
