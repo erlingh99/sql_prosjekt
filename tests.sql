@@ -1,3 +1,7 @@
+DO $$
+BEGIN
+RAISE NOTICE 'Checking failing tests...';
+END$$;
 ---- Fail ----
 -- TEST #1: register to a course where the student is already registered
 -- EXPECTED OUTCOME: Fail
@@ -27,22 +31,32 @@ DELETE FROM Registrations WHERE student = 'QQQQQQQQQQ' AND course = 'CCC333';
 -- EXPECTED OUTCOME: Fail
 DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCCQQQ';
 
+DO $$
+BEGIN
+RAISE NOTICE 'Checking failing tests DONE';
+END$$;
+
+DO $$
+BEGIN
+RAISE NOTICE 'Checking passing tests...';
+END$$;
+
 ---- Pass ----
 -- TEST #8: registered to an unlimited course;
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('777777777','CCC111');
+INSERT INTO Registrations VALUES ('0101010101','TEEEST');
 
 -- TEST #9: registered to a limited course;
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('777777777','CCC222');
+INSERT INTO Registrations VALUES ('0101010101','TESTLI');
 
 -- TEST #10: waiting for a limited course;
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('333333333','CCC222');
+INSERT INTO Registrations VALUES ('3333333333','TESTLI');
 
 -- TEST #11: removed from a waiting list (with additional students in it)
 -- EXPECTED OUTCOME: Pass
-DELETE FROM Registrations WHERE student = '333333333' AND course = 'CCC222';
+DELETE FROM Registrations WHERE student = '3333333333' AND course = 'CCC222';
 
 -- TEST #12: unregistered from an unlimited course;
 -- EXPECTED OUTCOME: Pass
@@ -63,3 +77,8 @@ DELETE FROM Registrations WHERE student = '2222222222' AND course = 'CCC333';
 -- TEST #16: unregistered from an overfull course with a waiting list.
 -- EXPECTED OUTCOME: Pass
 DELETE FROM Registrations WHERE student = '8888888888' AND course = 'CCC222';
+
+DO $$
+BEGIN
+RAISE NOTICE 'Checking passing tests DONE';
+END$$;

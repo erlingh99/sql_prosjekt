@@ -9,12 +9,13 @@ CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 \set QUIET false
 
-
+SET client_min_messages TO NOTICE; -- Less talk please.
 -- \ir is for include relative, it will run files in the same directory as this file
 -- Note that these are not SQL statements but rather Postgres commands (no terminating ;). 
 \ir tables.sql
 \ir views.sql
 \ir inserts.sql
+\ir triggers.sql
 
 
 -- Tests various queries from the assignment, uncomment these as you make progress

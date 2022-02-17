@@ -115,7 +115,7 @@ CREATE TABLE WaitingList(
     student     CHAR(10) REFERENCES Students,
     course      CHAR(6) REFERENCES LimitedCourses,
     --position    INTEGER NOT NULL CHECK (position > 0),
-    position    TIMESTAMP NOT NULL DEFAULT NOW()
+    position    TIMESTAMP NOT NULL DEFAULT NOW(),
 
     --UNIQUE (position, course),
     PRIMARY KEY (student, course)

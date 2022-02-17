@@ -66,7 +66,7 @@ CREATE OR REPLACE FUNCTION unregisterStudent() RETURNS TRIGGER AS $unregisterStu
 BEGIN
     studentExists := EXISTS (SELECT 1 FROM Students WHERE OLD.student = idnr);
     courseExists := EXISTS (SELECT 1 FROM Courses WHERE OLD.course = code);
-
+    
     IF NOT courseExists AND NOT studentExists THEN
         RAISE EXCEPTION 'Student % and course % does not exist.', OLD.student, OLD.course;
     END IF;
@@ -102,6 +102,7 @@ BEGIN
         newStudent := (SELECT student FROM CourseQueuePositions WHERE place = 1 AND CourseQueuePositions.course = OLD.course);
         INSERT INTO Registered VALUES(newStudent, OLD.course);
         DELETE FROM WaitingList WHERE (WaitingList.student = newStudent AND WaitingList.Course = OLD.course);
+        RAISE NOTICE 'Student % added to course % from waiting list.', newStudent, OLD.course;  
     END IF;
 
     RETURN NULL;
