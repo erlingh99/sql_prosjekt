@@ -1,12 +1,13 @@
 -- Setup
-/*
-TODO:
-SQL code that sets up your database for testing the triggers. 
-This will normally be the concatenation of files tables.sql, insert.sql and views.sql 
-from part 2. 
-We must be able to test your triggers by executing the files setup.sql and triggers.sql,
-in that order.
-*/
+-- This script deletes everything in your database
+\set QUIET true
+SET client_min_messages TO NOTICE; -- Less talk please.
+-- Use this instead of drop schema if running on the Chalmers Postgres server
+-- DROP OWNED BY TDA357_XXX CASCADE;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+\set QUIET false
 -- Tables
 CREATE TABLE Departments(
     name         TEXT PRIMARY KEY,
@@ -125,7 +126,7 @@ CREATE TABLE WaitingList(
     course      CHAR(6) REFERENCES LimitedCourses,
     position    INTEGER NOT NULL CHECK (position > 0),
 
-    UNIQUE (position, courseCode),
+    UNIQUE (position, course),
     PRIMARY KEY (student, course)
 );
 
@@ -284,6 +285,7 @@ INSERT INTO Taken VALUES('2222222222','CCC444','U');
 INSERT INTO WaitingList VALUES('3333333333','CCC222', 1);
 INSERT INTO WaitingList VALUES('3333333333','CCC333', 1);
 INSERT INTO WaitingList VALUES('2222222222','CCC333', 2);
+
 
 \ir triggers.sql
 \ir tests.sql
