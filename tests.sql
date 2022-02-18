@@ -1,6 +1,7 @@
 DO $$
 BEGIN
 RAISE NOTICE 'Checking failing tests...';
+RAISE NOTICE '---------------------------';
 END$$;
 ---- Fail ----
 -- TEST #1: register to a course where the student is already registered
@@ -15,9 +16,9 @@ INSERT INTO Registrations VALUES ('3333333333','CCC222');
 -- EXPECTED OUTCOME: Fail
 INSERT INTO Registrations VALUES ('2222222222','CCC333');
 
--- TEST #4: unregister from a course that the student is not participating in
+-- TEST #4: unregister from a course the student does not take
 -- EXPECTED OUTCOME: Fail
-DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCC333';
+DELETE FROM Registrations WHERE student = '1111111111' AND course = 'TESTLI';
 
 -- TEST #5: unregister from a course where the student and course does not exist
 -- EXPECTED OUTCOME: Fail
@@ -34,11 +35,13 @@ DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCCQQQ';
 DO $$
 BEGIN
 RAISE NOTICE 'Checking failing tests DONE';
+RAISE NOTICE '---------------------------';
 END$$;
 
 DO $$
 BEGIN
 RAISE NOTICE 'Checking passing tests...';
+RAISE NOTICE '---------------------------';
 END$$;
 
 ---- Pass ----
@@ -81,4 +84,5 @@ DELETE FROM Registrations WHERE student = '8888888888' AND course = 'CCC222';
 DO $$
 BEGIN
 RAISE NOTICE 'Checking passing tests DONE';
+RAISE NOTICE '---------------------------';
 END$$;
