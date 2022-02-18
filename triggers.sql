@@ -1,9 +1,10 @@
 -- Triggers
-CREATE FUNCTION registerStudent() 
+CREATE OR REPLACE FUNCTION registerStudent() 
     RETURNS TRIGGER 
 AS $$
 DECLARE
-    missing         TEXT;
+    missing         RECORD;
+    missed          TEXT;
     fullCourse      BOOLEAN;
     cap             Integer;
     reg             Integer;
@@ -43,10 +44,10 @@ BEGIN
     IF EXISTS (SELECT 1 FROM missingCourses) THEN        
         -- SELECT * FROM MissingCourses;
         FOR missing IN SELECT * FROM MissingCourses LOOP
-            RAISE NOTICE 'Missing required course: %', missing.missCourses;
+            missed := CONCAT(missed, missing.missCourses, ' ');
         END LOOP;        
         DROP TABLE MissingCourses;
-        RAISE EXCEPTION 'All required courses are not passed.'; --this only shows one missing course
+        RAISE EXCEPTION 'All required courses are not passed. Missing: %', missed; --this only shows one missing course
     END IF;
     
     DROP TABLE MissingCourses;
