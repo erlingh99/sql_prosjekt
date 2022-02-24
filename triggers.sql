@@ -1,3 +1,7 @@
+CREATE VIEW CourseQueuePositions AS (
+    SELECT course, student, ROW_NUMBER() OVER(PARTITION BY course ORDER BY position ASC) AS place FROM WaitingList
+);
+
 -- Triggers
 CREATE OR REPLACE FUNCTION registerStudent() 
     RETURNS TRIGGER 

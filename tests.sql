@@ -1,3 +1,4 @@
+---------------------------------------------
 -- TEST #1: register to a course where the student is already registered
 -- EXPECTED OUTCOME: Fail
 INSERT INTO Registrations VALUES ('1111111111','CCC111');
@@ -61,3 +62,4 @@ DELETE FROM Registrations WHERE student = '2222222222' AND course = 'CCC333';
 -- TEST #16: unregistered from an overfull course with a waiting list.
 -- EXPECTED OUTCOME: Pass
 DELETE FROM Registrations WHERE student = '8888888888' AND course = 'CCC222';
+---------------------------------------------
