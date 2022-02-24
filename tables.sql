@@ -9,7 +9,7 @@ CREATE TABLE Programs(
     abbriviation TEXT
 );
 
---what departments hold what programs, assume many to many relationship
+--what departments hold what programs, assumes many to many relationship
 CREATE TABLE DepartmentPrograms( 
     departmentName TEXT REFERENCES Departments,
     programName    TEXT REFERENCES Programs
@@ -34,7 +34,7 @@ CREATE TABLE Students(
 CREATE TABLE Courses(
     code        CHAR(6) PRIMARY KEY,
     name        TEXT NOT NULL,
-    credits     FLOAT NOT NULL CHECK (credits >= 0), --got feedback to change allow 0 credits, but this was already allowed. No changes made
+    credits     FLOAT NOT NULL CHECK (credits >= 0),
     department  TEXT REFERENCES Departments
 );
 
@@ -117,6 +117,6 @@ CREATE TABLE WaitingList(
     --position    INTEGER NOT NULL CHECK (position > 0),
     position    TIMESTAMP NOT NULL DEFAULT NOW(),
 
-    --UNIQUE (position, course),
+    UNIQUE (position, course), --not really neccesary as a timestamp _can_ be identical for multiple people.
     PRIMARY KEY (student, course)
 );

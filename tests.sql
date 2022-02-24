@@ -14,7 +14,7 @@ INSERT INTO Registrations VALUES ('3333333333','CCC222');
 
 -- TEST #3: register to a course where the student does not meet the prerequisites
 -- EXPECTED OUTCOME: Fail
-INSERT INTO Registrations VALUES ('2222222222','CCC333');
+INSERT INTO Registrations VALUES ('7777777777','CCC222'); --does not work
 
 -- TEST #4: unregister from a course the student does not take
 -- EXPECTED OUTCOME: Fail
