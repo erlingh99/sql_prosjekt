@@ -1,9 +1,3 @@
-DO $$
-BEGIN
-RAISE NOTICE 'Checking failing tests...';
-RAISE NOTICE '---------------------------';
-END$$;
----- Fail ----
 -- TEST #1: register to a course where the student is already registered
 -- EXPECTED OUTCOME: Fail
 INSERT INTO Registrations VALUES ('1111111111','CCC111');
@@ -14,7 +8,7 @@ INSERT INTO Registrations VALUES ('3333333333','CCC222');
 
 -- TEST #3: register to a course where the student does not meet the prerequisites
 -- EXPECTED OUTCOME: Fail
-INSERT INTO Registrations VALUES ('7777777777','CCC222'); --does not work
+INSERT INTO Registrations VALUES ('7777777777','CCC222');
 
 -- TEST #4: unregister from a course the student does not take
 -- EXPECTED OUTCOME: Fail
@@ -32,19 +26,6 @@ DELETE FROM Registrations WHERE student = 'QQQQQQQQQQ' AND course = 'CCC333';
 -- EXPECTED OUTCOME: Fail
 DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCCQQQ';
 
-DO $$
-BEGIN
-RAISE NOTICE 'Checking failing tests DONE';
-RAISE NOTICE '---------------------------';
-END$$;
-
-DO $$
-BEGIN
-RAISE NOTICE 'Checking passing tests...';
-RAISE NOTICE '---------------------------';
-END$$;
-
----- Pass ----
 -- TEST #8: registered to an unlimited course;
 -- EXPECTED OUTCOME: Pass
 INSERT INTO Registrations VALUES ('0101010101','TEEEST');
@@ -80,9 +61,3 @@ DELETE FROM Registrations WHERE student = '2222222222' AND course = 'CCC333';
 -- TEST #16: unregistered from an overfull course with a waiting list.
 -- EXPECTED OUTCOME: Pass
 DELETE FROM Registrations WHERE student = '8888888888' AND course = 'CCC222';
-
-DO $$
-BEGIN
-RAISE NOTICE 'Checking passing tests DONE';
-RAISE NOTICE '---------------------------';
-END$$;
