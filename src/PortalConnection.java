@@ -10,7 +10,7 @@ public class PortalConnection {
     // For connecting to the portal database on your local machine
     static final String DATABASE = "jdbc:postgresql://localhost/"+DBNAME;
     static final String USERNAME = "postgres";
-    static final String PASSWORD = "postgres";
+    static final String PASSWORD = " ";
 
     // For connecting to the chalmers database server (from inside chalmers)
     // static final String DATABASE = "jdbc:postgresql://brage.ita.chalmers.se/";
@@ -49,12 +49,19 @@ public class PortalConnection {
 
     // Unregister a student from a course, returns a tiny JSON document (as a String)
     public String unregister(String student, String courseCode){
-      return "{\"success\":false, \"error\":\"Unregistration is not implemented yet :(\"}";
+        try (PreparedStatement s  = conn.prepareStatement("DELETE FROM Registrations WHERE student = ? AND course = ?;")) {
+            s.setString(1, student);
+            s.setString(2, courseCode);
+            s.executeUpdate();
+            System.out.println(s);
+        } catch (SQLException e) {
+            return "{\"success\":false, \"error\":\""+getError(e)+"\"}";
+        }
+        return "{\"success\":true\"}";
     }
 
     // Return a JSON document containing lots of information about a student, it should validate against the schema found in information_schema.json
     public String getInfo(String student) throws SQLException{
-        
         try(PreparedStatement st = conn.prepareStatement(
             // replace this with something more useful
             "SELECT jsonb_build_object('student',idnr,'name',name) AS jsondata FROM BasicInformation WHERE idnr=?"
