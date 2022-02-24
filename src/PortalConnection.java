@@ -6,7 +6,7 @@ public class PortalConnection {
 
     // Set this to e.g. "portal" if you have created a database named portal
     // Leave it blank to use the default database of your database user
-    static final String DBNAME = "";
+    static final String DBNAME = "lab4";
     // For connecting to the portal database on your local machine
     static final String DATABASE = "jdbc:postgresql://localhost/"+DBNAME;
     static final String USERNAME = "postgres";
@@ -58,7 +58,9 @@ public class PortalConnection {
         try(PreparedStatement st = conn.prepareStatement(
             // replace this with something more useful
             "SELECT jsonb_build_object('student',idnr,'name',name) AS jsondata FROM BasicInformation WHERE idnr=?"
-            );){
+            );
+            )
+        {
             
             st.setString(1, student);
             
