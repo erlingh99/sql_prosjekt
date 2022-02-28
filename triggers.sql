@@ -3,7 +3,7 @@ CREATE VIEW CourseQueuePositions AS (
 );
 
 -- Triggers
-CREATE OR REPLACE FUNCTION registerStudent() 
+CREATE FUNCTION registerStudent() 
     RETURNS TRIGGER 
 AS $$
 DECLARE
@@ -35,7 +35,7 @@ BEGIN
 
     -- Check if the student has completed the prerequired courses
     -- Creating a temp table for this is probably not the best solution, but found no other way to print multiple missing courses
-    CREATE TEMP TABLE missingCourses(
+    CREATE TEMP TABLE MissingCourses(
         missCourses  TEXT
     );
 
@@ -44,9 +44,9 @@ BEGIN
             (SELECT required FROM Prerequisites WHERE Prerequisites.course = NEW.course),
         passed AS
             (SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student)     
-    INSERT INTO MissingCourses SELECT required FROM requiredCourses WHERE NOT EXISTS (SELECT FROM passed WHERE course = required) ;
+    INSERT INTO MissingCourses SELECT required FROM requiredCourses EXCEPT SELECT course FROM passed;
         
-    IF EXISTS (SELECT 1 FROM missingCourses) THEN        
+    IF EXISTS (SELECT 1 FROM MissingCourses) THEN        
         FOR missing IN SELECT * FROM MissingCourses LOOP
             missed := CONCAT(missed, missing.missCourses, ' ');
         END LOOP;        
