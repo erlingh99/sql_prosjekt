@@ -84,32 +84,19 @@ CREATE FUNCTION unregisterStudent()
 RETURNS TRIGGER 
 AS $$
 DECLARE
-    studentExists   BOOLEAN;
-    courseExists    BOOLEAN;
     isWaiting       BOOLEAN;
     isLimited       BOOLEAN;
     isRegistered    BOOLEAN;
     isWaitingEmpty  BOOLEAN;
     newStudent      CHAR(10);
 BEGIN
-    studentExists := EXISTS (SELECT 1 FROM Students WHERE OLD.student = idnr);
-    courseExists := EXISTS (SELECT 1 FROM Courses WHERE OLD.course = code);
-    
-    --RAISE NOTICE '----------------------------------------% % %', OLD.student, OLD.course, NOT EXISTS (SELECT 1 FROM Students WHERE OLD.student = idnr);
-    IF NOT studentExists THEN
-        RAISE EXCEPTION 'Student % does not exist.', OLD.student;
-    END IF;
-
-    IF NOT courseExists THEN
-        RAISE EXCEPTION 'Course % does not exist.', OLD.course;
-    END IF;
 
     -- Check if the student is on the waiting list.
-    isWaiting := EXISTS (SELECT 1 FROM Registrations WHERE Registrations.student = OLD.student AND status = 'waiting');
+    isWaiting := EXISTS (SELECT 1 FROM Registrations WHERE Registrations.student = OLD.student AND Registrations.course = OLD.course AND status = 'waiting');
     -- Check if the course is limited.
     isLimited := EXISTS (SELECT 1 FROM LimitedCourses WHERE LimitedCourses.code = OLD.course);
     -- Check if the student is registered in the course.
-    isRegistered := EXISTS (SELECT 1 FROM Registrations WHERE Registrations.student = OLD.student AND status = 'registered');
+    isRegistered := EXISTS (SELECT 1 FROM Registrations WHERE Registrations.student = OLD.student AND Registrations.course = OLD.course AND status = 'registered');
     
     IF isWaiting THEN
         DELETE FROM WaitingList WHERE (WaitingList.student = OLD.student AND WaitingList.Course = OLD.course);
@@ -139,7 +126,5 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER registerStudent INSTEAD OF INSERT ON Registrations 
     FOR EACH ROW EXECUTE FUNCTION registerStudent();
 
-CREATE TRIGGER unregisterStudent INSTEAD OF DELETE 
-    ON Registrations
-    FOR EACH ROW 
-    EXECUTE FUNCTION unregisterStudent();
+CREATE TRIGGER unregisterStudent INSTEAD OF DELETE ON Registrations
+    FOR EACH ROW EXECUTE FUNCTION unregisterStudent();

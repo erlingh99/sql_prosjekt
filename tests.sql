@@ -11,21 +11,6 @@ INSERT INTO Registrations VALUES ('3333333333','CCC222');
 -- EXPECTED OUTCOME: Fail
 INSERT INTO Registrations VALUES ('7777777777','CCC222');
 
--- TEST #4: unregister from a course the student does not take
--- EXPECTED OUTCOME: Fail
-DELETE FROM Registrations WHERE student = '1111111111' AND course = 'TESTLI';
-
--- TEST #5: unregister from a course where the student and course does not exist
--- EXPECTED OUTCOME: Fail
-DELETE FROM Registrations WHERE student = 'QQQQQQQQQQ' AND course = 'CCCQQQ';
-
--- TEST #6: unregister from a course where the student does not exist
--- EXPECTED OUTCOME: Fail
-DELETE FROM Registrations WHERE student = 'QQQQQQQQQQ' AND course = 'CCC333';
-
--- TEST #7: unregister from a course where the course does not exist
--- EXPECTED OUTCOME: Fail
-DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCCQQQ';
 
 -- TEST #8: registered to an unlimited course;
 -- EXPECTED OUTCOME: Pass
@@ -45,7 +30,7 @@ DELETE FROM Registrations WHERE student = '3333333333' AND course = 'CCC222';
 
 -- TEST #12: unregistered from an unlimited course;
 -- EXPECTED OUTCOME: Pass
-DELETE FROM Registrations WHERE student = '111111111' AND course = 'CCC111';
+DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCC111';
 
 -- TEST #13: unregistered from a limited course without a waiting list;
 -- EXPECTED OUTCOME: Pass
