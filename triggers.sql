@@ -84,6 +84,7 @@ CREATE FUNCTION unregisterStudent()
 RETURNS TRIGGER 
 AS $$
 DECLARE
+    overBooked      BOOLEAN;
     isWaiting       BOOLEAN;
     isLimited       BOOLEAN;
     isRegistered    BOOLEAN;
@@ -108,11 +109,17 @@ BEGIN
 
     -- Check if limited course has empty waiting list
     isWaitingEmpty := (SELECT student FROM CourseQueuePositions WHERE place = 1 AND CourseQueuePositions.course = OLD.course) IS NULL;
+    
+    --Check if overbooked limited course    
+    overBooked := False;
+    IF isLimited THEN
+        overBooked := (SELECT count(*) FROM Registrations WHERE (Registrations.course = OLD.course AND status = 'registered')) >= (SELECT capacity FROM LimitedCourses WHERE code = OLD.course);
+    END IF;
 
     -- If unregistering from a limited course, add the next person on the waiting list to the course.
-    IF isRegistered AND isLimited AND NOT isWaitingEmpty THEN
+    IF isRegistered AND isLimited AND NOT isWaitingEmpty AND NOT overBooked THEN
         newStudent := (SELECT student FROM CourseQueuePositions WHERE place = 1 AND CourseQueuePositions.course = OLD.course);
-        INSERT INTO Registered VALUES(newStudent, OLD.course);
+        INSERT INTO Registered VALUES (newStudent, OLD.course);
         DELETE FROM WaitingList WHERE (WaitingList.student = newStudent AND WaitingList.Course = OLD.course);
         RAISE NOTICE 'Student % added to course % from waiting list.', newStudent, OLD.course;  
     END IF;
