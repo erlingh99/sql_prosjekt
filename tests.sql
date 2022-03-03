@@ -41,3 +41,7 @@ DELETE FROM Registrations WHERE student = '5555555555' AND course = 'CCC333';
 -- TEST #11: unregistered from an overfull course with a waiting list.
 -- EXPECTED OUTCOME: Pass
 DELETE FROM Registrations WHERE student = '8888888888' AND course = 'CCC222';
+
+-- TEST #12: register to already passed course.
+-- EXPECTED OUTCOME: Pass
+INSERT INTO Registrations VALUES ('4444444444', 'CCC111');

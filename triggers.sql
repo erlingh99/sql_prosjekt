@@ -33,6 +33,11 @@ BEGIN
         RAISE EXCEPTION 'Student % is already on waitinglist for course %.', NEW.student, NEW.course;
     END IF; 
 
+    -- Check if student has already passed the course
+    IF EXISTS (SELECT 1 FROM PassedCourses WHERE PassedCourses.student = NEW.Student AND PassedCourses.course = NEW.course) THEN
+        RAISE EXCEPTION 'Student % has already passed course %.', NEW.student, NEW.course;
+    END IF;
+    
     -- Check if the student has completed the prerequired courses
     -- Creating a temp table for this is probably not the best solution, but found no other way to print multiple missing courses
     CREATE TEMP TABLE MissingCourses(
