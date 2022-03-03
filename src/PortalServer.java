@@ -12,7 +12,7 @@ import com.sun.net.httpserver.HttpServer;
 public class PortalServer {
     
     // Change this to 80 if you want the default HTTP port.
-    public static final int PORT = 8080;
+    public static final int PORT = 25565;
 
     public static void main(String[] args) throws Exception {
         PortalServer s = new PortalServer();
@@ -137,9 +137,9 @@ public class PortalServer {
                "                    let result = `<h2>Registration result</h2>`;\n" +
                "                   \n" +
                "                    if(data.success){\n" +
-               "                      result += \"Registration sucessful!\";                  \n" +
+               "                      result += \"Registration successful!\";                  \n" +
                "                    } else {\n" +
-               "                      result += `Registration failed! Error: ${data.error}`;                  \n" +
+               "                      result += `Registration failed! ${data.error}`;                  \n" +
                "                    }\n" +
                "                    \n" +
                "                    document.getElementById('result').innerHTML = result;\n" +
@@ -158,9 +158,9 @@ public class PortalServer {
                "                    let result = `<h2>Unregistration result</h2>`;\n" +
                "                   \n" +
                "                    if(data.success){\n" +
-               "                      result += \"Unregistration sucessful!\";                  \n" +
+               "                      result += \"Unregistration successful!\";                  \n" +
                "                    } else {\n" +
-               "                      result += `Unregistration failed! Error: ${data.error}`;                  \n" +
+               "                      result += `Unregistration failed! ${data.error}`;                  \n" +
                "                    }\n" +
                "                    \n" +
                "                    document.getElementById('result').innerHTML = result;\n" +
@@ -200,7 +200,7 @@ public class PortalServer {
         
         server.createContext("/reg", (HttpExchange t) -> {
             Map<String,String> input = queryToMap(t);
-            String response = conn.register(input.get("student"),input.get("course"));
+            String response = conn.register(input.get("student"), input.get("course"));
             byte[] bytes = response.getBytes();;
             t.sendResponseHeaders(200, bytes.length);
             OutputStream os = t.getResponseBody();
