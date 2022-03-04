@@ -16,7 +16,7 @@ public class PortalServer {
         s.server.start();
     }
 
-    private static PortalConnection conn;
+    private PortalConnection conn;
     HttpServer server;
     
     public PortalServer() throws Exception {

@@ -14,8 +14,8 @@ public class PortalConnection {
     static final String DBNAME = "lab4";
     // For connecting to the portal database on your local machine
     static final String DATABASE = "jdbc:postgresql://localhost/" + DBNAME;
-    static final String USERNAME = "pepega";
-    static final String PASSWORD = " ";
+    static final String USERNAME = "postgres";
+    static final String PASSWORD = "postgres";
 
     // This is the JDBC connection object you will be using in your methods.
     private Connection conn;
@@ -50,7 +50,9 @@ public class PortalConnection {
     public String unregister(String student, String courseCode) {
         String sql = "DELETE FROM Registrations WHERE student='"+student+"' AND course='" +courseCode+"';"; //deliberate Sql injection vulnerability
         try (Statement s = conn.createStatement()) {
-            s.executeQuery(sql);
+            int del = s.executeUpdate(sql);
+            if (del == 0)
+                throw new SQLException("ERROR: Cannot unregister from course " + courseCode + " because student isn't registered in it.");
         } catch (SQLException e) {
             return new JsonResponse(false, e).getJson();
         }
@@ -120,7 +122,8 @@ public class PortalConnection {
         }
 
         try (PreparedStatement st = conn.prepareStatement(
-                "SELECT code, name, credits, grade FROM Courses NATURAL JOIN PassedCourses NATURAL JOIN Taken WHERE student=?;")) {
+                "SELECT code, name, credits, grade FROM Courses NATURAL JOIN PassedCourses NATURAL JOIN Taken WHERE student=?;"))
+        {
             st.setString(1, student);
             ResultSet rs = st.executeQuery();
             List<JsonObject> finishedCourses = new ArrayList<>();
