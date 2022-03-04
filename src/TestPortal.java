@@ -48,11 +48,12 @@ public class TestPortal {
             prettyPrint(c.getInfo("0101010101")); // position should be last
             pause();
 
-            // Test 8. Unregister from an overfull course, no student should be moved to the
-            // queue.
-            System.out.println(c.unregister("0101010101", "FULLLL"));
+            // Test 8. Unregister from an overfull course, no student should be moved from waitingList
+            System.out.println(c.register("3333333333", "FULLLL"));
+            c.printWaitingList("FULLLL");
+            System.out.println(c.unregister("0101010101", "FULLLL"));            
             prettyPrint(c.getInfo("0101010101"));
-            c.printWaitingList("FULLLL"); // should be empty
+            c.printWaitingList("FULLLL"); //should be same as above
             pause();
             
             // Test 9. Use SQL injection to unregister all students.
