@@ -26,8 +26,8 @@ public class TestPortal {
             System.out.println(c.unregister("4444444444", "UNREST"));
             pause();
 
-            // Test 5. Register the student to a course without prerequisites met. We
-            // expect an error here.
+            // Test 5. Register the student to a course without prerequisites met. 
+            // We expect an error here.
             System.out.println(c.register("4444444444", "NONPRE"));
             pause();
 
@@ -38,7 +38,7 @@ public class TestPortal {
             System.out.println(c.register("8888888888", "TESTLI"));
             System.out.println(c.unregister("0101010101", "TESTLI"));
             System.out.println(c.register("0101010101", "TESTLI"));
-            prettyPrint(c.getInfo("0101010101")); // position should be last
+            prettyPrint(c.getInfo("0101010101")); // position should be last (2)
             pause();
 
             // Test 7. Unregister and re-register the same student for the same restricted
@@ -53,8 +53,11 @@ public class TestPortal {
             System.out.println(c.unregister("0101010101", "FULLLL"));
             prettyPrint(c.getInfo("0101010101"));
             c.printWaitingList("FULLLL"); // should be empty
+            pause();
+            
+            // Test 9. Use SQL injection to unregister all students.
+            System.out.println(c.unregister("2222222222", "CCC333'; DELETE FROM Registrations;--"));
 
-            // TODO: Test 9. Use SQL injection to unregister students.
 
         } catch (ClassNotFoundException e) {
             System.err.println(

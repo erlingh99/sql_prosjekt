@@ -48,18 +48,13 @@ public class PortalConnection {
     // Unregister a student from a course, returns a tiny JSON document (as a
     // String)
     public String unregister(String student, String courseCode) {
-        int row = 0; // Number of rows affected - if 0 -> the user input is probably wrong.
-        try (PreparedStatement s = conn.prepareStatement("DELETE FROM Registrations WHERE student=? AND course=?;")) {
-            s.setString(1, student);
-            s.setString(2, courseCode);
-            row = s.executeUpdate();
+        String sql = "DELETE FROM Registrations WHERE student='"+student+"' AND course='" +courseCode+"';"; //deliberate Sql injection vulnerability
+        try (Statement s = conn.createStatement()) {
+            s.executeQuery(sql);
         } catch (SQLException e) {
             return new JsonResponse(false, e).getJson();
         }
-        if (row > 0)
-            return new JsonResponse(true, null).getJson();
-        else
-            return new JsonResponse(false, new SQLException("No results were returned by the query.")).getJson();
+        return new JsonResponse(true, null).getJson();
     }
 
     public void printWaitingList(String courseCode) {
